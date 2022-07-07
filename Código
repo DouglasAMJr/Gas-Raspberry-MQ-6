@@ -1,0 +1,41 @@
+#adição das bibliotecas
+import RPi.GPIO as GPIO
+from gpiozero import LED, Button, Buzzer
+import requests
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+
+#configuração dos objetos "led, sensor, buzzer, válvula e botão de reset"
+led_vermelho = LED(26)
+led_verde = LED(23)
+valvula = LED(21)
+sensor = Button(14)
+reset = Button(20)
+buzzer = Buzzer(16)
+
+#configuração da mensagem e chave para enviar notificação para o app
+nome_evento = "vazamento_de_gas"
+chave_autenticacao = "b_91IFingeUBFSvaQ35e7d"
+
+#execução do código
+while True:
+
+		valvula.on()
+		led_verde.on()
+
+		sensor.wait_for_pressed()  #se o sensor for ativado o led acende e a válvula é bloqueada
+		led_vermleho.on()
+		led_verde.off()
+		valvula.off()
+		buzzer.blink()
+
+		#comando para enviar mensagem de alerta para o app
+		requests.post('https://maker.ifttt.com/trigger/'+nome_evento+'/whit/key/'+chave_autenticacao)
+
+		reset.wait_for_pressed  #quando o botão de reset for ativado o led apaga e a válvula é liberada
+		led_vermleho.off()
+		led_verde.on()
+		valvula.off()
+		buzzer.off()
